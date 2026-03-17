@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude 引き継ぎ</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+
+    <header class="header">
+      <span class="header-icon">🔁</span>
+      <h1>Claude 引き継ぎ</h1>
+    </header>
+
+    <!-- ステータスメッセージ -->
+    <div id="status-area" class="hidden">
+      <div id="status-message" class="status-message"></div>
+    </div>
+
+    <!-- ファイル引き継ぎ警告 -->
+    <div id="file-warning" class="warning-box hidden">
+      <div class="warning-title">⚠ ファイルの手動引き継ぎが必要です</div>
+      <div class="warning-body">
+        <p>以下のファイルは新規チャットへ手動でアップロードしてください：</p>
+        <ul id="file-list"></ul>
+      </div>
+    </div>
+
+    <!-- 生成結果エリア -->
+    <div id="result-area" class="result-area hidden">
+      <div class="textarea-label">引き継ぎ用テキスト（コピーして新規チャットに貼り付け）</div>
+      <textarea id="handoff-text" class="handoff-textarea" readonly></textarea>
+      <button id="copy-btn" class="btn btn-copy">📋 コピー</button>
+    </div>
+
+    <!-- 初期状態 -->
+    <div id="empty-state" class="empty-state">
+      <p class="hint">claude.ai のチャット画面でボタンを押すと、<br>引き継ぎ用テキストを自動生成します。</p>
+      <button id="generate-btn" class="btn btn-generate">引き継ぎテキストを生成</button>
+    </div>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
