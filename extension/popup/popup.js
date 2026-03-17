@@ -17,9 +17,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 現在のアクティブタブを取得
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  // claude.ai のチャット画面以外では生成ボタンを無効化
-  if (!tab?.url?.match(/^https:\/\/claude\.ai\/chat\//)) {
-    showStatus('error', 'claude.ai のチャット画面でご使用ください。');
+  // 対応サイト以外では生成ボタンを無効化
+  const isClaude = tab?.url?.match(/^https:\/\/claude\.ai\/chat\//);
+  const isGemini = tab?.url?.match(/^https:\/\/gemini\.google\.com\//);
+  if (!isClaude && !isGemini) {
+    showStatus('error', 'claude.ai または gemini.google.com のチャット画面でご使用ください。');
     generateBtn.disabled = true;
     return;
   }
@@ -36,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         throw new Error(response?.error || '会話の取得に失敗しました。ページをリロードして再試行してください。');
       }
 
-      const { title, messages, attachedFiles } = response.data;
+      const { title, messages, attachedFiles, aiName } = response.data;
 
       if (messages.length === 0) {
         throw new Error('会話が見つかりませんでした。チャットが始まっているか確認してください。');
@@ -54,7 +56,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       // 引き継ぎテキストを生成して表示
-      textarea.value = buildHandoffText(title, messages);
+      textarea.value = buildHandoffText(title, messages, aiName);
 
       emptyState.classList.add('hidden');
       resultArea.classList.remove('hidden');
@@ -86,9 +88,10 @@ document.addEventListener('DOMContentLoaded', async () => {
  * 会話履歴から引き継ぎ用プロンプトを生成する
  * @param {string} title チャットタイトル
  * @param {{role:'user'|'assistant', content:string}[]} messages
+ * @param {string} aiName AI の名前（'Claude' | 'Gemini'）
  * @returns {string}
  */
-function buildHandoffText(title, messages) {
+function buildHandoffText(title, messages, aiName = 'AI') {
   const now = new Date().toLocaleString('ja-JP', {
     timeZone: 'Asia/Tokyo',
     year: 'numeric', month: '2-digit', day: '2-digit',
@@ -116,7 +119,7 @@ function buildHandoffText(title, messages) {
   // 会話ブロックを整形
   const conversationBlock = displayed.map(msg => {
     if (msg.role === 'system') return msg.content;
-    const label = msg.role === 'user' ? '【ユーザー】' : '【Claude】';
+    const label = msg.role === 'user' ? '【ユーザー】' : `【${aiName}】`;
     return `${label}\n${truncate(msg.content)}`;
   }).join('\n\n---\n\n');
 
@@ -149,7 +152,7 @@ ${conversationBlock}
 **最後のユーザーの要求:**
 ${lastUser ? truncate(lastUser.content) : '（なし）'}
 
-**Claudeの直前の対応:**
+**${aiName}の直前の対応:**
 ${lastAssistant ? truncate(lastAssistant.content) : '（なし）'}
 
 ---
