@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "AI Chat Handoff",
   "version": "1.1.0",
-  "description": "Claude / Gemini のチャット会話を新規チャットへ引き継ぐための要約テキストを生成します",
+  "description": "Claude / Gemini のチャット会話を抽出し、新規チャットへの引き継ぎ用テキストを生成します",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": [
     "https://claude.ai/*",
