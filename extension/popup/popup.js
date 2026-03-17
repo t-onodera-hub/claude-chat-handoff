@@ -98,32 +98,12 @@ function buildHandoffText(title, messages, aiName = 'AI') {
     hour: '2-digit', minute: '2-digit'
   });
 
-  // 1メッセージあたりの最大文字数（長い場合は末尾を省略）
-  const MAX_LEN = 1000;
-  const truncate = text =>
-    text.length > MAX_LEN ? text.slice(0, MAX_LEN) + '\n…（省略）' : text;
-
-  // 表示するメッセージ数を調整
-  // 先頭1件 + 最新10件を含め、中間は省略表示する
-  const RECENT = 10;
-  let displayed = messages;
-  if (messages.length > RECENT + 1) {
-    const skipped = messages.length - RECENT - 1;
-    displayed = [
-      messages[0],
-      { role: 'system', content: `… （中間 ${skipped} 件のやり取りを省略） …` },
-      ...messages.slice(-RECENT)
-    ];
-  }
-
-  // 会話ブロックを整形
-  const conversationBlock = displayed.map(msg => {
-    if (msg.role === 'system') return msg.content;
+  // 会話ブロックを整形（全件・全文）
+  const conversationBlock = messages.map(msg => {
     const label = msg.role === 'user' ? '【ユーザー】' : `【${aiName}】`;
-    return `${label}\n${truncate(msg.content)}`;
+    return `${label}\n${msg.content}`;
   }).join('\n\n---\n\n');
 
-  // 最後のユーザー・Claudeの発言を取得
   const lastUser      = [...messages].reverse().find(m => m.role === 'user');
   const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant');
 
@@ -150,10 +130,10 @@ ${conversationBlock}
 ## 現在の状態（引き継ぎポイント）
 
 **最後のユーザーの要求:**
-${lastUser ? truncate(lastUser.content) : '（なし）'}
+${lastUser ? lastUser.content : '（なし）'}
 
 **${aiName}の直前の対応:**
-${lastAssistant ? truncate(lastAssistant.content) : '（なし）'}
+${lastAssistant ? lastAssistant.content : '（なし）'}
 
 ---
 
