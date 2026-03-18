@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "AIチャット引き継ぎ用吸出し",
-  "version": "1.1.0",
-  "description": "Claude / Gemini のチャット会話を抽出し、新規チャットへの引き継ぎ用テキストを生成します",
+  "version": "1.2.0",
+  "description": "Claude / Gemini / ChatGPT のチャット会話を抽出し、新規チャットへの引き継ぎ用テキストを生成します",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": [
     "https://claude.ai/*",
-    "https://gemini.google.com/*"
+    "https://gemini.google.com/*",
+    "https://chatgpt.com/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
@@ -16,7 +17,8 @@
     {
       "matches": [
         "https://claude.ai/*",
-        "https://gemini.google.com/*"
+        "https://gemini.google.com/*",
+        "https://chatgpt.com/*"
       ],
       "js": ["content/content.js"],
       "run_at": "document_idle"

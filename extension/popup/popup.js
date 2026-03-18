@@ -18,10 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
   // 対応サイト以外では生成ボタンを無効化
-  const isClaude = tab?.url?.match(/^https:\/\/claude\.ai\/chat\//);
-  const isGemini = tab?.url?.match(/^https:\/\/gemini\.google\.com\//);
-  if (!isClaude && !isGemini) {
-    showStatus('error', 'claude.ai または gemini.google.com のチャット画面でご使用ください。');
+  const isClaude  = tab?.url?.match(/^https:\/\/claude\.ai\/chat\//);
+  const isGemini  = tab?.url?.match(/^https:\/\/gemini\.google\.com\//);
+  const isChatGPT = tab?.url?.match(/^https:\/\/chatgpt\.com\//);
+  if (!isClaude && !isGemini && !isChatGPT) {
+    showStatus('error', 'claude.ai / gemini.google.com / chatgpt.com のチャット画面でご使用ください。');
     generateBtn.disabled = true;
     return;
   }

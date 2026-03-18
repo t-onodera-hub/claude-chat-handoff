@@ -1,5 +1,5 @@
 /**
- * コンテンツスクリプト: claude.ai / gemini.google.com のチャット内容を抽出する
+ * コンテンツスクリプト: claude.ai / gemini.google.com / chatgpt.com のチャット内容を抽出する
  * ポップアップからのメッセージを受け取り、会話データを返す
  */
 
@@ -26,6 +26,8 @@ function extractChatContent() {
     return extractClaude();
   } else if (host === 'gemini.google.com') {
     return extractGemini();
+  } else if (host === 'chatgpt.com') {
+    return extractChatGPT();
   } else {
     throw new Error('対応していないサイトです。');
   }
@@ -112,6 +114,50 @@ function extractGemini() {
   return {
     site: 'gemini',
     aiName: 'Gemini',
+    title,
+    messages,
+    attachedFiles: Array.from(attachedFiles),
+    totalTurns: messages.length
+  };
+}
+
+// ============================================================
+//  ChatGPT 抽出
+// ============================================================
+function extractChatGPT() {
+  const messages = [];
+  const attachedFiles = new Set();
+
+  const title = document.title.replace(/\s*[-|]\s*ChatGPT$/, '').trim() || '無題のチャット';
+
+  // 各会話ターン: article[data-testid^="conversation-turn-"]
+  document.querySelectorAll('article[data-testid^="conversation-turn-"]').forEach(article => {
+    const role = article.querySelector('[data-message-author-role]')
+                        ?.getAttribute('data-message-author-role');
+
+    if (role === 'user') {
+      // ユーザーメッセージ: .whitespace-pre-wrap 内のテキスト
+      const el = article.querySelector('.whitespace-pre-wrap') || article;
+      const text = el.innerText.trim();
+      if (text) messages.push({ role: 'user', content: text });
+
+      // 添付ファイル（画像・ファイル名）
+      article.querySelectorAll('[data-testid="file-thumbnail"] span, img[alt]').forEach(f => {
+        const name = f.tagName === 'IMG' ? f.getAttribute('alt') : f.textContent.trim();
+        if (name) attachedFiles.add(name);
+      });
+
+    } else if (role === 'assistant') {
+      // AI の返答: .markdown 内のテキスト
+      const el = article.querySelector('.markdown') || article;
+      const text = el.innerText.trim();
+      if (text) messages.push({ role: 'assistant', content: text });
+    }
+  });
+
+  return {
+    site: 'chatgpt',
+    aiName: 'ChatGPT',
     title,
     messages,
     attachedFiles: Array.from(attachedFiles),
